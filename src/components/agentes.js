@@ -29,6 +29,12 @@ const agentesSaude = [
     telefone: '(67) 97777-0090',
     foto: require('../assets/5.jpg'),
   },
+  {
+    bairro: 'Jardim Alvorada',
+    nome: 'Miriã de Carla',
+    telefone: '(67) 97777-8090',
+    foto: require('../assets/6.jpg'),
+  },
 ];
 
 export default agentesSaude;
