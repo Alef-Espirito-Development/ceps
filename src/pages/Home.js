@@ -128,76 +128,72 @@ const Home = () => {
                     </>
                 )}
 
+                {/* Filtro de Bairros */}
+                <TextField
+                    select
+                    label="Filtrar por Bairro"
+                    value={address.bairro || ''}
+                    onChange={(e) => setAddress({ ...address, bairro: e.target.value })}
+                    fullWidth
+                    sx={{ mt: 2 }}
+                >
+                    <MenuItem value="">Todos os Bairros</MenuItem>
+                    {agentesSaude.map((agente, index) => (
+                        <MenuItem key={index} value={agente.bairro}>
+                            {agente.bairro}
+                        </MenuItem>
+                    ))}
+                </TextField>
+
+                {/* Exibição dos resultados filtrados */}
                 {result && (
                     <Box sx={{ mt: 4 }}>
                         <Typography variant="h6">Resultado:</Typography>
-                        {(Array.isArray(result) ? result : [result]).map((item, index) => (
-                            <Paper key={index} elevation={3} sx={{ p: 2, mb: 2, position: 'relative', borderRadius: 2 }}>
-                                <Typography><LocationOnIcon /> <strong>CEP:</strong> {item.cep}</Typography>
-                                <Typography><PhoneIcon /> <strong>DDD:</strong> {item.ddd}</Typography>
-                                <Typography><ApartmentIcon /> <strong>IBGE:</strong> {formatIBGE(item.ibge)}</Typography>
-                                <Typography><MapIcon /> <strong>Região:</strong> {item.regiao}</Typography>
-                                <Typography><AccountBalanceIcon /> <strong>SIAFI:</strong> {formatSIAFI(item.siafi)}</Typography>
-                                {tabValue === 0 && (
-                                    <>
-                                        <Typography><HomeIcon /> <strong>Logradouro:</strong> {item.logradouro}</Typography>
-                                        <Typography><DomainIcon /> <strong>Bairro:</strong> {item.bairro}</Typography>
-                                        <Typography><LocationCityIcon /> <strong>Cidade:</strong> {item.localidade} - {item.uf}</Typography>
-                                        {/*<hr />*/}
-                                        <Paper elevation={0} sx={{ p: 1, mb: 2, borderRadius: 2 }}>
+                        {(Array.isArray(result) ? result : [result])
+                            .filter(item => !address.bairro || item.bairro === address.bairro)
+                            .map((item, index) => (
+                                <Paper key={index} elevation={3} sx={{ p: 2, mb: 2, position: 'relative', borderRadius: 2 }}>
+                                    <Typography><LocationOnIcon /> <strong>CEP:</strong> {item.cep}</Typography>
+                                    <Typography><PhoneIcon /> <strong>DDD:</strong> {item.ddd}</Typography>
+                                    <Typography><ApartmentIcon /> <strong>IBGE:</strong> {formatIBGE(item.ibge)}</Typography>
+                                    <Typography><MapIcon /> <strong>Região:</strong> {item.regiao}</Typography>
+                                    <Typography><AccountBalanceIcon /> <strong>SIAFI:</strong> {formatSIAFI(item.siafi)}</Typography>
+
+                                    {tabValue === 0 && (
+                                        <>
+                                            <Typography><HomeIcon /> <strong>Logradouro:</strong> {item.logradouro}</Typography>
+                                            <Typography><DomainIcon /> <strong>Bairro:</strong> {item.bairro}</Typography>
+                                            <Typography><LocationCityIcon /> <strong>Cidade:</strong> {item.localidade} - {item.uf}</Typography>
+
                                             {getAgenteByBairro(item.bairro) && (
                                                 <Box sx={{ mt: 2, textAlign: 'left' }}>
-                                                    <Typography
-                                                        variant="h6"
-                                                        sx={{
-                                                            fontWeight: 'bold',
-                                                            color: '#006a28',
-                                                            fontSize: 16
+                                                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
+                                                        Agente de Saúde: {getAgenteByBairro(item.bairro).nome}
+                                                    </Typography>
+                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
+                                                        Contato: {getAgenteByBairro(item.bairro).telefone}
+                                                    </Typography>
+                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
+                                                        Posto Correspondente: {getAgenteByBairro(item.bairro).postoCorrespondente}
+                                                    </Typography>
+                                                    <img
+                                                        src={getAgenteByBairro(item.bairro).foto}
+                                                        alt={getAgenteByBairro(item.bairro).nome}
+                                                        width="90" height="120"
+                                                        style={{
+                                                            position: 'absolute',
+                                                            bottom: 10,
+                                                            right: 20,
+                                                            borderRadius: 2,
+                                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
                                                         }}
-                                                    >
-                                                        Agente de Saúde
-                                                        <Typography
-                                                            sx={{
-                                                                fontWeight: 'bold',
-                                                                color: '#006a28',
-                                                                fontSize: 14
-                                                            }}
-                                                        >
-                                                            {getAgenteByBairro(item.bairro).nome}
-                                                        </Typography>
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="h6">
-                                                        <Typography
-                                                            sx={{
-                                                                fontWeight: 'bold',
-                                                                color: '#006a28',
-                                                                fontSize: 14
-                                                            }}
-                                                        >
-                                                            {getAgenteByBairro(item.bairro).telefone}
-                                                        </Typography>
-                                                    </Typography>
-                                                    {tabValue === 0 && getAgenteByBairro(item.bairro) && (
-                                                        <img
-                                                            src={getAgenteByBairro(item.bairro).foto}
-                                                            alt={getAgenteByBairro(item.bairro).nome}
-                                                            width="90" height="120"
-                                                            style={{
-                                                                position: 'absolute',
-                                                                bottom: 10,
-                                                                right: 20,
-                                                                borderRadius: 2,
-                                                                boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-                                                            }} />
-                                                    )}
+                                                    />
                                                 </Box>
                                             )}
-                                        </Paper>
-                                    </>
-                                )}
-                            </Paper>
-                        ))}
+                                        </>
+                                    )}
+                                </Paper>
+                            ))}
                     </Box>
                 )}
             </Paper>

@@ -27,7 +27,7 @@ const Header = () => {
                 <Box component="img"
                     src="/banner-mobile.png"
                     alt="Banner Mobile"
-                    sx={{ display: { xs: 'block', sm: 'none' }, height: 80, width: 400, borderRadius: 2 }}
+                    sx={{ display: { xs: 'block', sm: 'none' }, height: 80, width: 380, borderRadius: 2 }}
                 />
             </Box>
         </AppBar>
