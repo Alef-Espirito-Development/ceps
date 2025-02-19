@@ -167,14 +167,17 @@ const Home = () => {
 
                                             {getAgenteByBairro(item.bairro) && (
                                                 <Box sx={{ mt: 2, textAlign: 'left' }}>
-                                                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
-                                                        Agente de Saúde: {getAgenteByBairro(item.bairro).nome}
+                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 16 }}>
+                                                        Agente de Saúde:
                                                     </Typography>
                                                     <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
-                                                        Contato: {getAgenteByBairro(item.bairro).telefone}
+                                                        {getAgenteByBairro(item.bairro).nome}
                                                     </Typography>
                                                     <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
-                                                        Posto Correspondente: {getAgenteByBairro(item.bairro).postoCorrespondente}
+                                                        {getAgenteByBairro(item.bairro).telefone}
+                                                    </Typography>
+                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
+                                                        {getAgenteByBairro(item.bairro).postoCorrespondente}
                                                     </Typography>
                                                     <img
                                                         src={getAgenteByBairro(item.bairro).foto}
