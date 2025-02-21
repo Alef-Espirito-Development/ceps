@@ -1,18 +1,17 @@
 import React, { useState } from 'react';
 import { Container, TextField, Autocomplete, Button, Typography, Box, Paper, CircularProgress, Tabs, Tab, MenuItem } from '@mui/material';
 import axios from 'axios';
-import logradourosList from './../components/logradouros';
+//import logradourosList from './../components/logradouros';
 import agentesSaude from './../components/agentes';
-import SearchIcon from '@mui/icons-material/Search'; //Para botão de pesquisa
-import LocationOnIcon from '@mui/icons-material/LocationOn';  // Para CEP
-import PhoneIcon from '@mui/icons-material/Phone';  // Para DDD
-import ApartmentIcon from '@mui/icons-material/Business';  // Para IBGE (Instituição/Órgão)
-import MapIcon from '@mui/icons-material/Map';  // Para Região
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';  // Para SIAFI (Sistema Financeiro)
-import HomeIcon from '@mui/icons-material/Home';  // Para Logradouro
-import DomainIcon from '@mui/icons-material/Domain';  // Para Bairro
-import LocationCityIcon from '@mui/icons-material/LocationCity';  // Para Cidade
-
+import SearchIcon from '@mui/icons-material/Search';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import PhoneIcon from '@mui/icons-material/Phone';
+import ApartmentIcon from '@mui/icons-material/Business';
+import MapIcon from '@mui/icons-material/Map';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import HomeIcon from '@mui/icons-material/Home';
+import DomainIcon from '@mui/icons-material/Domain';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
 
 const Home = () => {
     const [cep, setCep] = useState('');
@@ -21,16 +20,19 @@ const Home = () => {
     const [loading, setLoading] = useState(false);
     const [tabValue, setTabValue] = useState(0);
 
-    const handleTabChange = (event, newValue) => setTabValue(newValue);
+    const tiposLogradouros = [
+        "Avenida", "Rua", "Viela", "Travessa", "Alameda", "Estrada", "Rodovia",
+        "Praça", "Largo", "Beco", "Boulevard", "Caminho", "Chácara", "Condomínio",
+        "Esplanada", "Galeria", "Jardim", "Parque", "Passarela", "Passeio",
+        "Quadra", "Setor", "Servidão", "Sítio", "Viaduto", "Vila", "Conjunto",
+        "Córrego", "Morro"
+    ];
 
-    const getAgenteByBairro = (bairro) => {
-        if (!bairro) return null;
-
-        const agente = agentesSaude.find((agente) => {
-            return agente.bairro.trim().toLowerCase() === bairro.trim().toLowerCase();
-        });
-
-        return agente || null;
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+        setCep('');                        // Limpa o campo de CEP
+        setAddress({ type: '', street: '' }); // Limpa os campos de endereço
+        setResult(null);                   // Limpa os resultados da busca
     };
 
     const validateCep = (cep) => /^[0-9]{8}$/.test(cep);
@@ -103,16 +105,25 @@ const Home = () => {
                             <Typography variant="body1" gutterBottom>Estado: MS</Typography>
                             <Typography variant="body1" gutterBottom>Cidade: Inocência</Typography>
                         </Box>
-                        <TextField select label="Tipo de Logradouro" value={address.type} onChange={(e) => setAddress({ ...address, type: e.target.value })} fullWidth sx={{ mb: 2 }}>
-                            <MenuItem value="Avenida">Avenida</MenuItem>
-                            <MenuItem value="Rua">Rua</MenuItem>
-                            <MenuItem value="Viela">Viela</MenuItem>
-                            <MenuItem value="Travessa">Travessa</MenuItem>
-                            <MenuItem value="Alameda">Alameda</MenuItem>
-                        </TextField>
-                        <Autocomplete freeSolo options={logradourosList} value={address.street} onChange={(event, newValue) => setAddress({ ...address, street: newValue })} onInputChange={(event, newInputValue) => setAddress({ ...address, street: newInputValue })} renderInput={(params) => (
-                            <TextField {...params} label="Nome do Logradouro" variant="outlined" />
-                        )} fullWidth sx={{ mb: 2 }} />
+                        <Autocomplete
+                            freeSolo
+                            options={tiposLogradouros}
+                            value={address.type || ''}  // Garante que seja uma string, não null
+                            onChange={(event, newValue) => setAddress({ ...address, type: newValue || '' })}
+                            inputValue={address.type || ''}  // Previne valores nulos
+                            onInputChange={(event, newInputValue) => setAddress({ ...address, type: newInputValue || '' })}
+                            renderInput={(params) => (
+                                <TextField {...params} label="Tipo de Logradouro" variant="outlined" fullWidth sx={{ mb: 2 }} />
+                            )}
+                        />
+                        <TextField
+                            label="Nome do Logradouro"
+                            variant="outlined"
+                            value={address.street}
+                            onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                            fullWidth
+                            sx={{ mb: 2 }}
+                        />
                         <Button variant="contained" color="primary" onClick={handleSearchAddress} fullWidth disabled={loading} startIcon={<SearchIcon />}>
                             {loading ? <CircularProgress size={24} color="inherit" /> : 'Pesquisar'}
                         </Button>
@@ -129,21 +140,23 @@ const Home = () => {
                 )}
 
                 {/* Filtro de Bairros */}
-                <TextField
-                    select
-                    label="Filtrar por Bairro"
-                    value={address.bairro || ''}
-                    onChange={(e) => setAddress({ ...address, bairro: e.target.value })}
-                    fullWidth
-                    sx={{ mt: 2 }}
-                >
-                    <MenuItem value="">Todos os Bairros</MenuItem>
-                    {agentesSaude.map((agente, index) => (
-                        <MenuItem key={index} value={agente.bairro}>
-                            {agente.bairro}
-                        </MenuItem>
-                    ))}
-                </TextField>
+                {tabValue === 0 && (
+                    <TextField
+                        select
+                        label="Filtrar por Bairro"
+                        value={address.bairro || ''}
+                        onChange={(e) => setAddress({ ...address, bairro: e.target.value })}
+                        fullWidth
+                        sx={{ mt: 2 }}
+                    >
+                        <MenuItem value="">Todos os Bairros</MenuItem>
+                        {agentesSaude.map((agente, index) => (
+                            <MenuItem key={index} value={agente.bairro}>
+                                {agente.bairro}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                )}
 
                 {/* Exibição dos resultados filtrados */}
                 {result && (
@@ -154,51 +167,18 @@ const Home = () => {
                             .map((item, index) => (
                                 <Paper key={index} elevation={3} sx={{ p: 2, mb: 2, position: 'relative', borderRadius: 2 }}>
                                     <Typography><LocationOnIcon /> <strong>CEP:</strong> {item.cep}</Typography>
+                                    <Typography><LocationCityIcon /> <strong>Cidade:</strong> {item.localidade} - {item.uf}</Typography>
                                     <Typography><PhoneIcon /> <strong>DDD:</strong> {item.ddd}</Typography>
                                     <Typography><ApartmentIcon /> <strong>IBGE:</strong> {formatIBGE(item.ibge)}</Typography>
                                     <Typography><MapIcon /> <strong>Região:</strong> {item.regiao}</Typography>
                                     <Typography><AccountBalanceIcon /> <strong>SIAFI:</strong> {formatSIAFI(item.siafi)}</Typography>
-
-                                    {tabValue === 0 && (
-                                        <>
-                                            <Typography><HomeIcon /> <strong>Logradouro:</strong> {item.logradouro}</Typography>
-                                            <Typography><DomainIcon /> <strong>Bairro:</strong> {item.bairro}</Typography>
-                                            <Typography><LocationCityIcon /> <strong>Cidade:</strong> {item.localidade} - {item.uf}</Typography>
-
-                                            {getAgenteByBairro(item.bairro) && (
-                                                <Box sx={{ mt: 2, textAlign: 'left' }}>
-                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 16 }}>
-                                                        Agente de Saúde:
-                                                    </Typography>
-                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
-                                                        {getAgenteByBairro(item.bairro).nome}
-                                                    </Typography>
-                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
-                                                        {getAgenteByBairro(item.bairro).telefone}
-                                                    </Typography>
-                                                    <Typography sx={{ fontWeight: 'bold', color: '#006a28', fontSize: 14 }}>
-                                                        {getAgenteByBairro(item.bairro).postoCorrespondente}
-                                                    </Typography>
-                                                    <img
-                                                        src={getAgenteByBairro(item.bairro).foto}
-                                                        alt={getAgenteByBairro(item.bairro).nome}
-                                                        width="90" height="120"
-                                                        style={{
-                                                            position: 'absolute',
-                                                            bottom: 10,
-                                                            right: 20,
-                                                            borderRadius: 2,
-                                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                                                        }}
-                                                    />
-                                                </Box>
-                                            )}
-                                        </>
-                                    )}
+                                    <Typography><HomeIcon /> <strong>Logradouro:</strong> {item.logradouro}</Typography>
+                                    <Typography><DomainIcon /> <strong>Bairro:</strong> {item.bairro}</Typography>
                                 </Paper>
                             ))}
                     </Box>
                 )}
+
             </Paper>
         </Container>
     );
